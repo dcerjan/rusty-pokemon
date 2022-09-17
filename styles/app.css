@@ -1,0 +1,19 @@
+body {
+  background-color: grey;
+}
+
+.Button {
+  border-radius: 3px;
+  border: 1px solid lightblue;
+  margin: 4px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.list > a {
+  margin: 8px;
+  text-transform: capitalize;
+}
