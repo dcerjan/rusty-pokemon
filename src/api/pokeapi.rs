@@ -32,39 +32,38 @@ impl PokeApi {
     }
 
     pub async fn fetch_pokemon_paginated(limit: i32, offset: i32) -> Vec<Pokemon> {
-        let mut pokemon = Vec::new();
+        let mut pokemon = vec![];
 
-        match Request::get(
+        let response = Request::get(
             format!("https://pokeapi.co/api/v2/pokemon?limit={limit}&offset={offset}").as_str(),
         )
         .send()
         .await
         .unwrap()
         .json::<PokemonPaginatedResponse>()
-        .await
-        {
+        .await;
+
+        match response {
             Ok(page) => {
                 async {
-                    let fs = futures::future::join_all(
+                    let all_requests = futures::future::join_all(
                         page.results
                             .iter()
                             .map(|item| PokeApi::fetch_pokemon_by_name(item.name.clone())),
                     );
 
-                    let bulk: Vec<Option<Pokemon>> = fs.await;
+                    let bulk: Vec<Option<Pokemon>> = all_requests.await;
 
-                    for poke in bulk {
-                        match poke {
-                            Some(p) => pokemon.push(p),
-                            _ => (),
-                        }
-                    }
+                    pokemon = bulk
+                        .iter()
+                        .filter_map(|it| it.as_ref())
+                        .map(|it| it.to_owned())
+                        .collect();
                 }
                 .await;
-                ()
+                pokemon
             }
-            _ => (),
-        };
-        pokemon
+            _ => vec![],
+        }
     }
 }
