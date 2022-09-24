@@ -1,3 +1,5 @@
 mod pokeapi;
+mod storage;
 
-pub use pokeapi::{fetch_pokemon_by_name, fetch_pokemon_paginated};
+pub use pokeapi::PokeApi;
+pub use storage::Storage;

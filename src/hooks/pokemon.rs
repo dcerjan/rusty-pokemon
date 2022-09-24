@@ -1,10 +1,7 @@
 use std::{cmp::max, rc::Rc};
 use yew::{use_effect_with_deps, use_state, use_state_eq, UseStateHandle};
 
-use crate::{
-    api::{fetch_pokemon_by_name, fetch_pokemon_paginated},
-    model::Pokemon,
-};
+use crate::{api::PokeApi, model::Pokemon};
 
 #[derive(Clone)]
 pub struct UsePaginatedPokemonHandle {
@@ -42,7 +39,8 @@ pub fn use_paginated_pokemon() -> UsePaginatedPokemonHandle {
             move |_| {
                 loading.set(true);
                 wasm_bindgen_futures::spawn_local(async move {
-                    let fetched = fetch_pokemon_paginated(PAGE_SIZE, *page_clone * PAGE_SIZE).await;
+                    let fetched =
+                        PokeApi::fetch_pokemon_paginated(PAGE_SIZE, *page_clone * PAGE_SIZE).await;
                     pokemon.set(fetched);
                     if pokemon.len() == 0 {
                         error.set(Some("Unable to fetch pokemon".to_string()));
@@ -90,7 +88,7 @@ pub fn use_pokemon(name: String) -> UsePokemonHandle {
             move |_| {
                 loading.set(true);
                 wasm_bindgen_futures::spawn_local(async move {
-                    let fetched = fetch_pokemon_by_name(name_for_fetch).await;
+                    let fetched = PokeApi::fetch_pokemon_by_name(name_for_fetch).await;
                     match fetched {
                         Some(poke) => {
                             pokemon.set(Some(poke));
